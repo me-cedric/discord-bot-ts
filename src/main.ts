@@ -17,34 +17,30 @@ try {
 }
 
 export const newMessage = (command) => {
-    return new MessageEmbed()
-        .setColor(COLOR)
-        .setTimestamp()
-        .setFooter(command.guild.name, command.guild.banner)
+  return new MessageEmbed()
+    .setColor(COLOR)
+    .setTimestamp()
+    .setFooter(command.guild.name, command.guild.banner)
 }
 
 export class Main {
-    private static client: Client
+  private static client: Client
 
-    static get BetterClient(): Client {
-        return this.client
-    }
+  static get BetterClient(): Client {
+    return this.client
+  }
 
-    static start() {
-        this.client = new Client()
+  static start() {
+    this.client = new Client()
 
-        this.client.login(
-            TOKEN,
-            `${__dirname}/discords/*.ts`
-        )
+    this.client.login(TOKEN, `${__dirname}/discords/*.ts`)
+  }
 
-    }
-
-    @On('ready')
-    ready() {
-        console.log('loaded')
-        synchronise()
-    }
+  @On('ready')
+  ready() {
+    console.log('loaded')
+    synchronise()
+  }
 }
 
 Main.start()

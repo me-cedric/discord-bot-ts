@@ -9,8 +9,8 @@ export class ServerInfo {
   help(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
       .setTitle('Liste des commandes disponibles')
-      .addField('`!server-info`' , `Lister les infos du serveur actuel.`)
-      .addField('`!user-info`' , `Lister vos infos.`)
+      .addField('`!server-info`', `Lister les infos du serveur actuel.`)
+      .addField('`!user-info`', `Lister vos infos.`)
     command.reply(embed)
   }
 
@@ -19,7 +19,7 @@ export class ServerInfo {
     const embed = newMessage(command)
       .setTitle('Infos du serveur')
       .setURL(`https://discord.com/channels/${command.guild.applicationID}`)
-      .addField(command.guild.name , `Membres : ${command.guild.memberCount}`)
+      .addField(command.guild.name, `Membres : ${command.guild.memberCount}`)
       .setThumbnail(command.guild.banner)
     command.reply(embed)
   }
@@ -30,8 +30,8 @@ export class ServerInfo {
       .setColor('#0099ff')
       .setTitle('Vos Infos')
       .setThumbnail(command.author.avatarURL())
-      .addField('Pseudo' , command.author.username)
-      .addField('ID' , command.author.id)
+      .addField('Pseudo', command.author.username)
+      .addField('ID', command.author.id)
       .setTimestamp()
       .setFooter(command.guild.name, command.author.avatarURL())
     command.reply(embed)
