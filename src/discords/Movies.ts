@@ -1,5 +1,4 @@
 import { Discord, Command, Client, CommandMessage } from '@typeit/discord'
-import { MessageEmbed } from 'discord.js'
 import { Movie, Movies } from '../db'
 import * as config from '../../config.json'
 import { newMessage } from '../main'
@@ -19,14 +18,14 @@ export class MoviesApp {
         watched: false
       })
 
-      embed.setTitle(`Le film ${(movie as Movie).name} a bien été ajouté.`)
+      embed.setTitle(`The movie ${(movie as Movie).name} was added.`)
       command.reply(embed)
     } catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {
-        embed.setTitle(`Le film existe déjà.`)
+        embed.setTitle(`The movie already exists.`)
         command.reply(embed)
       } else {
-        embed.setTitle(`Une erreur est survenue.`)
+        embed.setTitle(`Something happened.`)
         command.reply(embed)
       }
     }
@@ -40,17 +39,13 @@ export class MoviesApp {
       const movie: any[] = await Movies.findAll()
 
       embed.setTitle(
-        `Les films sont ${JSON.stringify(
-          (movie as Movie[])
-            .map(function (elem) {
-              return elem.name
-            })
-            .join(', ')
+        `The saved movies are ${JSON.stringify(
+          (movie as Movie[]).map((elem) => elem.name).join(', ')
         )}.`
       )
       command.reply(embed)
     } catch (e) {
-      embed.setTitle(`Une erreur est survenue.`)
+      embed.setTitle(`Something happened.`)
       command.reply(embed)
     }
   }

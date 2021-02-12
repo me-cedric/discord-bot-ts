@@ -8,18 +8,18 @@ export class ServerInfo {
   @Command('help')
   help(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
-      .setTitle('Liste des commandes disponibles')
-      .addField('`!server-info`', `Lister les infos du serveur actuel.`)
-      .addField('`!user-info`', `Lister vos infos.`)
+      .setTitle('List of available commands')
+      .addField('`!server-info`', `List server infos.`)
+      .addField('`!user-info`', `List your own infos.`)
     command.reply(embed)
   }
 
   @Command('server-info')
   serverInfo(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
-      .setTitle('Infos du serveur')
+      .setTitle('Server Infos')
       .setURL(`https://discord.com/channels/${command.guild.applicationID}`)
-      .addField(command.guild.name, `Membres : ${command.guild.memberCount}`)
+      .addField(command.guild.name, `Members : ${command.guild.memberCount}`)
       .setThumbnail(command.guild.banner)
     command.reply(embed)
   }
@@ -28,9 +28,9 @@ export class ServerInfo {
   userInfo(command: CommandMessage, client: Client) {
     const embed = new MessageEmbed()
       .setColor('#0099ff')
-      .setTitle('Vos Infos')
+      .setTitle('Your Infos')
       .setThumbnail(command.author.avatarURL())
-      .addField('Pseudo', command.author.username)
+      .addField('Username', command.author.username)
       .addField('ID', command.author.id)
       .setTimestamp()
       .setFooter(command.guild.name, command.author.avatarURL())

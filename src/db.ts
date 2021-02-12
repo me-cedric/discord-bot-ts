@@ -33,7 +33,41 @@ export const MovieLists = sequelize.define('movieLists', {
   }
 })
 
+export interface TwitchGameResponse {
+  data: {
+    id: string
+    name: string
+    boxArtUrl: string
+  }[]
+}
+export interface TwitchGame {
+  id: number
+  gameName: string
+  gameId: string
+  createdAt: string
+  updatedAt: string
+}
+export interface Drop {
+  id: number
+  gameName: string
+  gameId: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const Drops = sequelize.define('drops', {
+  gameName: {
+    type: STRING,
+    unique: true
+  },
+  gameId: {
+    type: STRING,
+    unique: true
+  }
+})
+
 export const synchronise = () => {
   Movies.sync()
   MovieLists.sync()
+  Drops.sync()
 }

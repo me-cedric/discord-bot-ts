@@ -1,5 +1,4 @@
 import { Discord, Command, Client, CommandMessage } from '@typeit/discord'
-import { MessageEmbed } from 'discord.js'
 import * as config from '../../config.json'
 import { newMessage } from '../main'
 
@@ -14,10 +13,10 @@ export class Dice {
     const embed = newMessage(command)
 
     if (isNaN(diceCount) || isNaN(diceSize)) {
-      embed.setTitle("Un des nombres n'a pas été entré.")
+      embed.setTitle('On of the number has not been entered.')
       embed.addField(
-        'Un nombre de dés et son nombre de face sont à entrer',
-        'Exemple `!3d6` ou `!1d20`'
+        'A number of dices and the number of faces is required',
+        'Example `!3d6` or `!1d20`'
       )
     } else {
       Array.from(Array(diceCount).keys()).forEach((count) => {
