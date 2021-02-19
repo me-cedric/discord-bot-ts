@@ -53,18 +53,11 @@ const { api } = new TwitchJs({
 
 export const twitchApi = api
 
-export const dropCheck = (): Promise<boolean> =>
-  api
-    .get('streams', {
-      version: ApiVersions.Kraken,
-      search: { game: 'Sea of Thieves', stream_type: 'live' }
-    })
-    .then(
-      (response) =>
-        response.streams
-          .map((stream: any) => stream.channel.status)
-          .filter((a: string) => a.toLowerCase().includes('drops')).length > 1
-    )
+export const getStreams = (id: string): Promise<any> =>
+  api.get('streams', {
+    version: ApiVersions.Helix,
+    search: { game_id: id }
+  })
 
 export const getGame = ({
   id,

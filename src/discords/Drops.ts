@@ -1,12 +1,15 @@
 import { Discord, Command, Client, CommandMessage } from '@typeit/discord'
 import { Drop, Drops, TwitchGame } from '../db'
 import * as config from '../../config.json'
-import { dropCheck, getGame, newMessage, titleCase } from '../main'
+import { getGame, getStreams, newMessage, titleCase } from '../main'
+import { scheduleJob } from 'node-schedule'
+
+var job = null
 
 @Discord(config.prefix)
 export class DropsApp {
-  @Command('drop-list')
-  async dropList(command: CommandMessage, client: Client) {
+  @Command('drops-list')
+  async dropsList(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
     Drops.findAll()
       .then((drops: any[]) => {
@@ -25,11 +28,11 @@ export class DropsApp {
         }
         embed
           .addField(
-            '`!drop-add **name of the game**`',
+            '`-drops-add **name of the game**`',
             `Will add the game to the watch list.`
           )
           .addField(
-            '`!drop-remove **name of the game**`',
+            '`-drops-remove **name of the game**`',
             `Will remove the game of the watch list.`
           )
       })
@@ -41,8 +44,8 @@ export class DropsApp {
       .finally(() => command.reply(embed))
   }
 
-  @Command('drop-add')
-  async dropAdd(command: CommandMessage, client: Client) {
+  @Command('drops-add')
+  async dropsAdd(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
     const splitted: string[] = command.commandContent.split(' ')
     splitted.shift()
@@ -54,11 +57,11 @@ export class DropsApp {
           `[Twitch](https://www.twitch.tv/directory/gaming) and get the exact name of a game`
         )
         .addField(
-          '`!drop-add **name of the game**`',
+          '`-drops-add **name of the game**`',
           `Will add the game to the watch list.`
         )
         .addField(
-          '`!drop-remove **name of the game**`',
+          '`-drops-remove **name of the game**`',
           `Will remove the game of the watch list.`
         )
       command.reply(embed)
@@ -88,8 +91,8 @@ export class DropsApp {
     }
   }
 
-  @Command('drop-remove')
-  async dropRemove(command: CommandMessage, client: Client) {
+  @Command('drops-remove')
+  async dropsRemove(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
     const splitted: string[] = command.commandContent.split(' ')
     splitted.shift()
@@ -97,11 +100,11 @@ export class DropsApp {
       embed
         .setTitle('How to remove a game to the Drops watch-list:')
         .addField(
-          '`!drop-list`',
+          '`-drops-list`',
           `Will list the games you are watching for drops.`
         )
         .addField(
-          '`!drop-remove **name of the game**`',
+          '`-drops-remove **name of the game**`',
           `Will remove the game of the watch list.`
         )
       command.reply(embed)
@@ -136,31 +139,76 @@ export class DropsApp {
     }
   }
 
-  @Command('drop')
-  async drop(command: CommandMessage, client: Client) {
+  @Command('drops')
+  async drops(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
-    dropCheck()
-      .then((hasDrops: boolean) => {
+    Drops.findAll()
+      .then((drops: any[]) => {
+        if (drops.length > 0) {
+          return Promise.all(
+            (drops as Drop[]).map((elem, i) => getStreams(elem.gameId))
+          )
+        } else throw Error('No drops')
+      })
+      .then((response) => {
+        const gameStreams = response.map((r: any) => r.data)
+        const flattened = [].concat(...gameStreams)
+        const hasDrops: boolean =
+          flattened
+            .map((stream: any) => stream.title)
+            .filter((a: string) => a.toLowerCase().includes('drops')).length > 1
         embed.setTitle(
           hasDrops
             ? 'There are drops today, go watch some streams.'
             : 'No drops today.'
         )
+        gameStreams.forEach((gameStream: any) =>
+          embed.addField(
+            `Here are some for **${gameStream[0].gameName}**`,
+            gameStream
+              .filter((stream: any) =>
+                stream.title.toLowerCase().includes('drops')
+              )
+              .map(
+                (stream: any) =>
+                  `${stream.title}\n https://twitch.tv/${stream.userLogin} [${stream.viewerCount} viewers]`
+              )
+              .slice(0, 3)
+              .join('\n')
+          )
+        )
         command.reply(embed)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err.message)
         embed.setTitle(`Couldn't check for drops.`)
         command.reply(embed)
       })
   }
 
-  @Command('drop-start-watch')
+  @Command('drops-start-watch')
   async startWatch(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
+    if (job != null) {
+      embed.setTitle('You were already watching for drops.')
+    } else {
+      job = scheduleJob('0 11 * * *', () => {
+        this.drops(command, client)
+      })
+      embed.setTitle('You are now watching for drops.')
+    }
+    command.reply(embed)
   }
 
-  @Command('drop-stop-watch')
+  @Command('drops-stop-watch')
   async stopWatch(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
+    if (job != null) {
+      job.cancel()
+      embed.setTitle('You are not watching for drops anymore.')
+    } else {
+      embed.setTitle('You are not watching for any drops already.')
+    }
+    command.reply(embed)
   }
 }

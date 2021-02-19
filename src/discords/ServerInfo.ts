@@ -9,8 +9,9 @@ export class ServerInfo {
   help(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
       .setTitle('List of available commands')
-      .addField('`!server-info`', `List server infos.`)
-      .addField('`!user-info`', `List your own infos.`)
+      .addField('`-server-info`', `List server infos.`)
+      .addField('`-user-info`', `List your own infos.`)
+      .addField('`-drops-list`', `List drops.`)
     command.reply(embed)
   }
 
