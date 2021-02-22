@@ -1,5 +1,10 @@
 {
-    "prefix": "-",
-    "color": "#0099ff",
-    "token": "discord bot token"
+  "prefix": "-",
+  "color": "#0099ff",
+  "token": "discord bot token",
+  "twitchToken": "twitch bot token",
+  "twitchClientId": "twitch  client id",
+  "twitchSecret": "twitch secret",
+  "twitchRefresh": "twitch refresh token",
+  "twitchUsername": "twitch username"
 }

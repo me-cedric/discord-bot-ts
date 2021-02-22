@@ -192,7 +192,7 @@ export class DropsApp {
     if (job != null) {
       embed.setTitle('You were already watching for drops.')
     } else {
-      job = scheduleJob('0 11 * * *', () => {
+      job = scheduleJob('30 11 * * *', () => {
         this.drops(command, client)
       })
       embed.setTitle('You are now watching for drops.')
