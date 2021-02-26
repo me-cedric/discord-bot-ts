@@ -162,21 +162,23 @@ export class DropsApp {
             ? 'There are drops today, go watch some streams.'
             : 'No drops today.'
         )
-        gameStreams.forEach((gameStream: any) =>
-          embed.addField(
-            `Here are some for **${gameStream[0].gameName}**`,
-            gameStream
-              .filter((stream: any) =>
-                stream.title.toLowerCase().includes('drops')
-              )
-              .map(
-                (stream: any) =>
-                  `${stream.title}\n https://twitch.tv/${stream.userLogin} [${stream.viewerCount} viewers]`
-              )
-              .slice(0, 3)
-              .join('\n')
-          )
-        )
+        gameStreams.forEach((gameStream: any) => {
+          if (gameStream.length > 0) {
+            embed.addField(
+              `Here are some for **${gameStream[0].gameName}**`,
+              gameStream
+                .filter((stream: any) =>
+                  stream.title.toLowerCase().includes('drops')
+                )
+                .map(
+                  (stream: any) =>
+                    `${stream.title}\n https://twitch.tv/${stream.userLogin} [${stream.viewerCount} viewers]`
+                )
+                .slice(0, 3)
+                .join('\n')
+            )
+          }
+        })
         command.reply(embed)
       })
       .catch((err) => {
