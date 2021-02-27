@@ -1,10 +1,11 @@
-import { Discord, Command, Client, CommandMessage } from '@typeit/discord'
+import { Discord, Command, Client, CommandMessage, Once } from '@typeit/discord'
 import { Drop, Drops, TwitchGame } from '../db'
 import * as config from '../../config.json'
-import { getGame, getStreams, newMessage, titleCase } from '../main'
+import { COLOR, getGame, getStreams, newMessage, titleCase } from '../main'
 import { scheduleJob } from 'node-schedule'
+import { MessageEmbed, TextChannel } from 'discord.js'
 
-var job = null
+var job = {}
 
 @Discord(config.prefix)
 export class DropsApp {
@@ -160,16 +161,16 @@ export class DropsApp {
         embed.setTitle(
           hasDrops
             ? 'There are drops today, go watch some streams.'
-            : 'No drops today.'
+            : 'No drops today, nothing to see here.'
         )
         gameStreams.forEach((gameStream: any) => {
-          if (gameStream.length > 0) {
+          const filtered = gameStream.filter((stream: any) =>
+            stream.title.toLowerCase().includes('drops')
+          )
+          if (filtered.length > 0) {
             embed.addField(
               `Here are some for **${gameStream[0].gameName}**`,
-              gameStream
-                .filter((stream: any) =>
-                  stream.title.toLowerCase().includes('drops')
-                )
+              filtered
                 .map(
                   (stream: any) =>
                     `${stream.title}\n https://twitch.tv/${stream.userLogin} [${stream.viewerCount} viewers]`
@@ -191,10 +192,10 @@ export class DropsApp {
   @Command('drops-start-watch')
   async startWatch(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
-    if (job != null) {
+    if (job[command.guild.id] != null) {
       embed.setTitle('You were already watching for drops.')
     } else {
-      job = scheduleJob('30 11 * * *', () => {
+      job[command.guild.id] = scheduleJob('30 10 * * *', () => {
         this.drops(command, client)
       })
       embed.setTitle('You are now watching for drops.')
@@ -205,12 +206,64 @@ export class DropsApp {
   @Command('drops-stop-watch')
   async stopWatch(command: CommandMessage, client: Client) {
     const embed = newMessage(command)
-    if (job != null) {
-      job.cancel()
+    if (job[command.guild.id] != null) {
+      job[command.guild.id].cancel()
       embed.setTitle('You are not watching for drops anymore.')
     } else {
       embed.setTitle('You are not watching for any drops already.')
     }
     command.reply(embed)
   }
+}
+
+export const watchDrops = (channel: TextChannel) => {
+  const embed = new MessageEmbed()
+    .setColor(COLOR)
+    .setTimestamp()
+    .setFooter(channel.guild.name, channel.guild.banner)
+
+  job[channel.guild.id] = scheduleJob('30 10 * * *', () => {
+    Drops.findAll()
+      .then((drops: any[]) => {
+        if (drops.length > 0) {
+          return Promise.all(
+            (drops as Drop[]).map((elem, i) => getStreams(elem.gameId))
+          )
+        } else throw Error('No drops')
+      })
+      .then((response) => {
+        const gameStreams = response.map((r: any) => r.data)
+        const flattened = [].concat(...gameStreams)
+        const hasDrops: boolean =
+          flattened
+            .map((stream: any) => stream.title)
+            .filter((a: string) => a.toLowerCase().includes('drops')).length > 1
+        if (hasDrops) {
+          embed.setTitle('There are drops today, go watch some streams.')
+          gameStreams.forEach((gameStream: any) => {
+            const filtered = gameStream.filter((stream: any) =>
+              stream.title.toLowerCase().includes('drops')
+            )
+            if (filtered.length > 0) {
+              embed.addField(
+                `Here are some for **${gameStream[0].gameName}**`,
+                filtered
+                  .map(
+                    (stream: any) =>
+                      `${stream.title}\n https://twitch.tv/${stream.userLogin} [${stream.viewerCount} viewers]`
+                  )
+                  .slice(0, 3)
+                  .join('\n')
+              )
+            }
+          })
+          channel.send(embed)
+        }
+      })
+      .catch((err) => {
+        console.log(err.message)
+        embed.setTitle(`Couldn't check for drops.`)
+        channel.send(embed)
+      })
+  })
 }

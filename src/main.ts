@@ -1,9 +1,10 @@
-import { Client, On } from '@typeit/discord'
-import { synchronise, TwitchGame, TwitchGameResponse } from './db'
+import { Client, Once, CommandNotFound, CommandMessage } from '@typeit/discord'
+import { synchronise, TwitchGameResponse } from './db'
 import * as config from '../config.json'
-import { MessageEmbed } from 'discord.js'
+import { MessageEmbed, TextChannel } from 'discord.js'
 import TwitchJs, { ApiVersions } from 'twitch-js'
 import fetchUtil from 'twitch-js/lib/utils/fetch'
+import { watchDrops } from './discords/Drops'
 
 let TOKEN: string
 let TWITCH_TOKEN: string
@@ -11,8 +12,8 @@ let TWITCH_CLIENT_ID: string
 let TWITCH_CLIENT_SECRET: string
 let TWITCH_REFRESH_TOKEN: string
 let TWITCH_USERNAME: string
-let PREFIX: string
-let COLOR: string
+export let PREFIX: string
+export let COLOR: string
 try {
   TOKEN = config.token
   PREFIX = config.prefix
@@ -79,52 +80,14 @@ export const titleCase = (str: string) => {
   return splitStr.join(' ')
 }
 
-// api
-//   .get('games', {
-//     version: ApiVersions.Helix,
-//     // search: { name: 'Sea of Thieves' }
-//     search: { id: '490377' }
-//   })
-//   .then((response) => {
-//     console.log(response)
-//     // Do stuff with response ...
-//   })
-//   .catch((err) => {
-//     console.log(err.message)
-//   })
-
-// api
-//   .get('users', {
-//     version: ApiVersions.Helix,
-//     search: { name: 'mecedric' }
-//   })
-//   .then((response) => {
-//     console.log(response)
-//     // Do stuff with response ...
-//   })
-//   .catch((err) => {
-//     console.log(err.message)
-//   })
-
-// api
-//   .get('entitlements', {
-//     version: ApiVersions.Helix
-//     // search: { user_id: '73743777', game_id: '490377' }
-//   })
-//   .then((response) => {
-//     console.log(response)
-//     // Do stuff with response ...
-//   })
-//   .catch((err) => {
-//     console.log(err.message)
-//   })
-
 export const newMessage = (command) => {
   return new MessageEmbed()
     .setColor(COLOR)
     .setTimestamp()
     .setFooter(command.guild.name, command.guild.banner)
 }
+
+export let channelsBot: TextChannel[] = []
 
 export class Main {
   private static client: Client
@@ -135,14 +98,35 @@ export class Main {
 
   static start() {
     this.client = new Client()
-
     this.client.login(TOKEN, `${__dirname}/discords/*.ts`)
   }
 
-  @On('ready')
+  static synchronizeChannels() {
+    console.log('synchronizeChannels')
+    channelsBot = Main.client.guilds.cache.map((guild) => {
+      const channels = guild.channels.cache
+        .filter((channel) => channel.type == 'text')
+        .array()
+      const botChannels = channels.filter(
+        (channel) =>
+          channel.name.includes('bot') && !channel.name.includes('music')
+      )
+      if (botChannels.length > 0) return botChannels[0]
+      else return channels[0]
+    }) as TextChannel[]
+    channelsBot.forEach((channel: TextChannel) => watchDrops(channel))
+  }
+
+  @Once('ready')
   ready() {
     console.log('loaded')
+    Main.synchronizeChannels()
     synchronise()
+  }
+
+  @CommandNotFound()
+  notFoundA(command: CommandMessage) {
+    command.reply('Command not found')
   }
 }
 
