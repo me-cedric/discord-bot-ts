@@ -114,7 +114,9 @@ export class Main {
       if (botChannels.length > 0) return botChannels[0]
       else return channels[0]
     }) as TextChannel[]
-    channelsBot.forEach((channel: TextChannel) => watchDrops(channel))
+    channelsBot.forEach((channel: TextChannel) => {
+      if (channel != null) watchDrops(channel)
+    })
   }
 
   @Once('ready')
