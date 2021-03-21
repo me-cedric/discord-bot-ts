@@ -217,12 +217,11 @@ export class DropsApp {
 }
 
 export const watchDrops = (channel: TextChannel) => {
-  const embed = new MessageEmbed()
-    .setColor(COLOR)
-    .setTimestamp()
-    .setFooter(channel.guild.name, channel.guild.banner)
-
   job[channel.guild.id] = scheduleJob('30 10 * * *', () => {
+    const embed = new MessageEmbed()
+      .setColor(COLOR)
+      .setTimestamp()
+      .setFooter(channel.guild.name, channel.guild.banner)
     Drops.findAll()
       .then((drops: any[]) => {
         if (drops.length > 0) {
