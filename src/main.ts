@@ -5,6 +5,7 @@ import { MessageEmbed, TextChannel } from 'discord.js'
 import TwitchJs, { ApiVersions } from 'twitch-js'
 import fetchUtil from 'twitch-js/lib/utils/fetch'
 import { watchDrops } from './discords/Drops'
+import { watchBirthdays } from './discords/Birthdays'
 
 let TOKEN: string
 let TWITCH_TOKEN: string
@@ -115,7 +116,10 @@ export class Main {
       else return channels[0]
     }) as TextChannel[]
     channelsBot.forEach((channel: TextChannel) => {
-      if (channel != null) watchDrops(channel)
+      if (channel != null) {
+        watchDrops(channel)
+        watchBirthdays(channel)
+      }
     })
   }
 

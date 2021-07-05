@@ -1,4 +1,4 @@
-import { Sequelize, STRING, BOOLEAN } from 'sequelize'
+import { Sequelize, STRING, BOOLEAN, DATEONLY } from 'sequelize'
 
 const sequelize = new Sequelize('database', 'user', 'password', {
   host: 'localhost',
@@ -40,6 +40,7 @@ export interface TwitchGameResponse {
     boxArtUrl: string
   }[]
 }
+
 export interface TwitchGame {
   id: number
   gameName: string
@@ -47,10 +48,21 @@ export interface TwitchGame {
   createdAt: string
   updatedAt: string
 }
+
 export interface Drop {
   id: number
   gameName: string
   gameId: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Birthday {
+  id: number
+  userId: string
+  userName: string
+  userString: string
+  date: Date
   createdAt: string
   updatedAt: string
 }
@@ -66,8 +78,42 @@ export const Drops = sequelize.define('drops', {
   }
 })
 
+export const Birthdays = sequelize.define('birthdays', {
+  userId: {
+    type: STRING,
+    unique: true
+  },
+  userName: {
+    type: STRING,
+    unique: false
+  },
+  userString: {
+    type: STRING,
+    unique: true
+  },
+  date: {
+    type: DATEONLY,
+    unique: false
+  }
+})
+
 export const synchronise = () => {
   Movies.sync()
   MovieLists.sync()
   Drops.sync()
+  Birthdays.sync()
+}
+
+export async function updateOrCreate(model, where, newItem): Promise<any> {
+  // First try to find the record
+  const foundItem = await model.findOne({ where });
+  if (!foundItem) {
+    // Item not found, create a new one
+    await model.create(newItem)
+  } else {
+    // Found an item, update it
+    await model.update(newItem, {where});
+  }
+  const item = await model.findOne({ where });
+  return {item, created: false};
 }
