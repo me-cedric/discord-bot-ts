@@ -5,7 +5,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
   dialect: 'sqlite',
   logging: false,
   // SQLite only
-  storage: 'database.sqlite'
+  storage: 'db/database.sqlite'
 })
 
 export interface Movie {
@@ -106,14 +106,14 @@ export const synchronise = () => {
 
 export async function updateOrCreate(model, where, newItem): Promise<any> {
   // First try to find the record
-  const foundItem = await model.findOne({ where });
+  const foundItem = await model.findOne({ where })
   if (!foundItem) {
     // Item not found, create a new one
     await model.create(newItem)
   } else {
     // Found an item, update it
-    await model.update(newItem, {where});
+    await model.update(newItem, { where })
   }
-  const item = await model.findOne({ where });
-  return {item, created: false};
+  const item = await model.findOne({ where })
+  return { item, created: false }
 }
