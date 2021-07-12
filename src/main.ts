@@ -1,7 +1,7 @@
 import { Client, Once, CommandNotFound, CommandMessage } from '@typeit/discord'
 import { synchronise, TwitchGameResponse } from './db'
 import * as config from '../config.json'
-import { MessageEmbed, TextChannel } from 'discord.js'
+import { MessageEmbed, PresenceData, TextChannel } from 'discord.js'
 import TwitchJs, { ApiVersions } from 'twitch-js'
 import fetchUtil from 'twitch-js/lib/utils/fetch'
 import { watchDrops } from './discords/Drops'
@@ -128,6 +128,15 @@ export class Main {
     console.log('loaded')
     Main.synchronizeChannels()
     synchronise()
+    const presence: PresenceData = {
+      status: 'online',
+      activity: {
+        name: 'you, beware',
+        type: 'WATCHING',
+        url: 'https://i.kym-cdn.com/entries/icons/original/000/025/817/Screen_Shot_2018-03-30_at_11.34.27_AM.png'
+      }
+    }
+    Main.client.user.setPresence(presence)
   }
 
   @CommandNotFound()
