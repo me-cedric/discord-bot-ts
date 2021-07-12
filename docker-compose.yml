@@ -6,3 +6,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${CONFIG}/discord-bot/db:/usr/src/app/databas.sqlite
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
