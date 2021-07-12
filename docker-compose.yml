@@ -5,7 +5,7 @@ services:
     image: cedricmeyer/node-web-app:latest
     restart: unless-stopped
     volumes:
-      - ${CONFIG}/discord-bot/db:/usr/src/app/databas.sqlite
+      - ${CONFIG}/discord-bot/db:/usr/src/app/db
     environment:
       - PUID=${PUID} # default user id, defined in .env
       - PGID=${PGID} # default group id, defined in .env
