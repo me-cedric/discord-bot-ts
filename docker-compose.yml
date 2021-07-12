@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  discord-bot:
+    container_name: discord-bot
+    image: cedricmeyer/node-web-app:latest
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG}/discord-bot/db:/usr/src/app/databas.sqlite
