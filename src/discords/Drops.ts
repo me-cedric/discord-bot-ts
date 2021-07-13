@@ -195,7 +195,7 @@ export class DropsApp {
     if (job[command.guild.id] != null) {
       embed.setTitle('You were already watching for drops.')
     } else {
-      job[command.guild.id] = scheduleJob('30 10 * * *', () => {
+      job[command.guild.id] = scheduleJob('0 12 * * *', () => {
         this.drops(command, client)
       })
       embed.setTitle('You are now watching for drops.')
@@ -217,7 +217,7 @@ export class DropsApp {
 }
 
 export const watchDrops = (channel: TextChannel) => {
-  job[channel.guild.id] = scheduleJob('30 10 * * *', () => {
+  job[channel.guild.id] = scheduleJob('0 12 * * *', () => {
     const embed = new MessageEmbed()
       .setColor(COLOR)
       .setTimestamp()
