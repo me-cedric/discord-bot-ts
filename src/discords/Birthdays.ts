@@ -174,7 +174,9 @@ export class BirthdaysApp {
               `${bday.userString}'s birthday is in ${isInDays(
                 bday.date
               )} days. ${
-                weekBdayStrings[Math.floor(Math.random() * bdayStrings.length)]
+                weekBdayStrings[
+                  Math.floor(Math.random() * weekBdayStrings.length)
+                ]
               }`
             )
           )
@@ -276,7 +278,9 @@ export const watchBirthdays = (channel: TextChannel) => {
               `${bday.userString}'s birthday is in ${isInDays(
                 bday.date
               )} days. ${
-                weekBdayStrings[Math.floor(Math.random() * bdayStrings.length)]
+                weekBdayStrings[
+                  Math.floor(Math.random() * weekBdayStrings.length)
+                ]
               }`
             )
           )
