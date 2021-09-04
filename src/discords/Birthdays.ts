@@ -24,7 +24,7 @@ const weekBdayStrings = [
   "If you don't get them anything I will be coming for you in your sleep.",
   'Time to be generous now or be forever ashamed.',
   'I will expose you browsing history if you do not have gifts for them.',
-  "If you don't have a gift for them, send me money via https://www.paypal.com/paypalme/mecedric or I will burn your house down.",
+  "If you don't have a gift for them, I will burn your house down.",
   'Your identity will be stolen if no presents are given to them.',
   'That leaves you some time to send them something they like, or your emails will leak online.'
 ]
